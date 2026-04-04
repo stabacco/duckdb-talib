@@ -1,0 +1,136 @@
+# serializer version: 1
+# name: test_macd_real_ticker_default_params_matches_python_talib[AAPL]
+  dict({
+    'outMACD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDHist': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDSignal': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_macd_real_ticker_default_params_matches_python_talib[QQQ]
+  dict({
+    'outMACD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDHist': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDSignal': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_macd_real_ticker_default_params_matches_python_talib[SPY]
+  dict({
+    'outMACD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDHist': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDSignal': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_macd_real_ticker_parametrized_matches_python_talib[12-26-9]
+  dict({
+    'outMACD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDHist': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDSignal': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_macd_real_ticker_parametrized_matches_python_talib[19-39-9]
+  dict({
+    'outMACD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDHist': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDSignal': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_macd_real_ticker_parametrized_matches_python_talib[8-21-5]
+  dict({
+    'outMACD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDHist': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outMACDSignal': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_macd_synthetic_matches_python_talib[12-26-9]
+  dict({
+    'outMACD': dict({
+      'py_minus_db': None,
+    }),
+    'outMACDHist': dict({
+      'py_minus_db': None,
+    }),
+    'outMACDSignal': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_macd_synthetic_matches_python_talib[5-35-5]
+  dict({
+    'outMACD': dict({
+      'py_minus_db': None,
+    }),
+    'outMACDHist': dict({
+      'py_minus_db': None,
+    }),
+    'outMACDSignal': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_macd_synthetic_matches_python_talib[8-17-9]
+  dict({
+    'outMACD': dict({
+      'py_minus_db': None,
+    }),
+    'outMACDHist': dict({
+      'py_minus_db': None,
+    }),
+    'outMACDSignal': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---

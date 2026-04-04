@@ -1,0 +1,57 @@
+# serializer version: 1
+# name: test_ema_real_ticker_matches_python_talib[AAPL-21]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_ema_real_ticker_matches_python_talib[QQQ-10]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_ema_real_ticker_matches_python_talib[QQQ-50]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_ema_real_ticker_matches_python_talib[SPY-10]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_ema_real_ticker_matches_python_talib[SPY-21]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_ema_real_ticker_matches_python_talib[SPY-50]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_ema_synthetic_matches_python_talib[10]
+  dict({
+    'py_minus_db': None,
+  })
+# ---
+# name: test_ema_synthetic_matches_python_talib[200]
+  dict({
+    'py_minus_db': None,
+  })
+# ---
+# name: test_ema_synthetic_matches_python_talib[21]
+  dict({
+    'py_minus_db': None,
+  })
+# ---
+# name: test_ema_synthetic_matches_python_talib[50]
+  dict({
+    'py_minus_db': None,
+  })
+# ---

@@ -372,6 +372,9 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 			throw InvalidInputException("talib: TA_ParamHolderAlloc failed");
 		}
 
+		// Must outlive TA_CallFunc — TA_SetInputParamPricePtr keeps raw pointers into these buffers.
+		vector<vector<double>> price_component_storage;
+
 		vector<vector<double>> real_storage(fi->nbInput);
 		vector<vector<int32_t>> int_storage(fi->nbInput);
 		idx_t arg_col = 0;
@@ -428,7 +431,6 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 				const double *pco = nullptr;
 				const double *pv = nullptr;
 				const double *poi = nullptr;
-				vector<vector<double>> price_vecs;
 				for (auto pc : kPriceComponents) {
 					if (pi->flags & pc.flag) {
 						vector<double> tmp;
@@ -443,8 +445,8 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 							fail_row("TA-Lib inputs must have equal length");
 							break;
 						}
-						price_vecs.push_back(std::move(tmp));
-						double *base = price_vecs.back().data();
+						price_component_storage.push_back(std::move(tmp));
+						double *base = price_component_storage.back().data();
 						if (pc.flag == TA_IN_PRICE_OPEN) {
 							po = base;
 						} else if (pc.flag == TA_IN_PRICE_HIGH) {

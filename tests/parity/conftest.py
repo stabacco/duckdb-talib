@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 import duckdb
 import numpy as np
@@ -20,15 +21,26 @@ def talib_extension_path() -> str:
 
 
 @pytest.fixture
-def duckdb_talib(talib_extension_path: str) -> duckdb.DuckDBPyConnection:
-    con = duckdb.connect(config={"allow_unsigned_extensions": "true"})
+def duckdb_talib(talib_extension_path: str) -> Any:
+    con = duckdb.connect(  # type: ignore[attr-defined]
+        config={"allow_unsigned_extensions": "true"}
+    )
     con.execute(f"LOAD '{talib_extension_path}'")
     return con
 
 
 @pytest.fixture
 def ohlc_df() -> pd.DataFrame:
-    """Synthetic monotonic close series; long enough for MACD and SMA warm-up."""
-    n = 120
+    """Synthetic OHLCV coherent with monotonic close; long enough for EMA(200), MACD, ATR/ADX."""
+    n = 260
     close = np.arange(1, n + 1, dtype=np.float64)
-    return pd.DataFrame({"close": close})
+    eps = 0.5
+    return pd.DataFrame(
+        {
+            "open": close - 0.25,
+            "high": close + eps,
+            "low": close - eps,
+            "close": close,
+            "volume": 1_000_000.0 + np.arange(n, dtype=np.float64) * 100.0,
+        }
+    )

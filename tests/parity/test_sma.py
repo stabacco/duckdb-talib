@@ -1,48 +1,29 @@
 from __future__ import annotations
 
-import numpy as np
 import pytest
 
-from tests.parity.util import (
-    assert_close_where_both_defined,
-    duckdb_list_to_float_array,
-)
+from tests.parity.market_data import load_close_prices
+from tests.parity.snapshotting import assert_parity_and_match_snapshot
+from tests.parity.util import duckdb_list_to_float_array
 
 talib = pytest.importorskip("talib")
 pytest.importorskip("yfinance")
 
 
-def _load_close_prices(
-    symbol: str, *, history_period: str, min_bars: int
-) -> np.ndarray:
-    import yfinance as yf
-
-    try:
-        hist = yf.Ticker(symbol).history(period=history_period, auto_adjust=True)
-    except Exception as exc:  # noqa: BLE001 — skip flaky network / API errors
-        pytest.skip(f"yfinance could not load {symbol!r}: {exc}")
-    if hist.empty or "Close" not in hist.columns:
-        pytest.skip(f"no close prices returned for {symbol!r}")
-    close = hist["Close"].to_numpy(dtype=np.float64, copy=True)
-    close = close[~np.isnan(close)]
-    if len(close) < min_bars:
-        pytest.skip(
-            f"only {len(close)} bars for {symbol!r}; need at least {min_bars} for this case"
-        )
-    return close
-
-
-def test_sma_synthetic_matches_python_talib(duckdb_talib, ohlc_df) -> None:
-    """Fast parity check without network (unchanged fixture)."""
+@pytest.mark.parametrize("timeperiod", [10, 30, 50])
+def test_sma_synthetic_matches_python_talib(
+    duckdb_talib, ohlc_df, timeperiod: int, snapshot
+) -> None:
     close = ohlc_df["close"].to_numpy()
-    period = 30
-    py = talib.SMA(close, timeperiod=period)
+    if len(close) < timeperiod + 2:
+        pytest.skip("fixture too short for this period")
+    py = talib.SMA(close, timeperiod=timeperiod)
     (db_list,) = duckdb_talib.execute(
         "SELECT ta_sma(?, ?::BIGINT)",
-        [close.tolist(), period],
+        [close.tolist(), timeperiod],
     ).fetchone()
     db_arr = duckdb_list_to_float_array(list(db_list))
-    assert_close_where_both_defined(py, db_arr)
+    assert_parity_and_match_snapshot(snapshot, py, db_arr, mode="full")
 
 
 @pytest.mark.network
@@ -61,9 +42,9 @@ def test_sma_real_ticker_matches_python_talib(
     duckdb_talib,
     symbol: str,
     timeperiod: int,
+    snapshot,
 ) -> None:
-    """SMA on real daily closes vs DuckDB `ta_sma` (same inputs as `talib.SMA`)."""
-    close = _load_close_prices(
+    close = load_close_prices(
         symbol,
         history_period="2y",
         min_bars=timeperiod + 5,
@@ -74,4 +55,4 @@ def test_sma_real_ticker_matches_python_talib(
         [close.tolist(), timeperiod],
     ).fetchone()
     db_arr = duckdb_list_to_float_array(list(db_list))
-    assert_close_where_both_defined(py, db_arr)
+    assert_parity_and_match_snapshot(snapshot, py, db_arr, mode="summary")

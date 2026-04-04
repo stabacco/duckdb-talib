@@ -286,6 +286,7 @@ dev = [
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "ruff" },
+    { name = "syrupy" },
     { name = "ta-lib" },
     { name = "yfinance" },
 ]
@@ -305,6 +306,7 @@ dev = [
     { name = "pre-commit", specifier = ">=4.5.0" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "ruff", specifier = ">=0.14.7" },
+    { name = "syrupy", specifier = ">=4.0.0" },
     { name = "ta-lib", specifier = ">=0.6.0" },
     { name = "yfinance", specifier = ">=0.2.40" },
 ]
@@ -795,6 +797,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7b/ae/2d9c981590ed9999a0d91755b47fc74f74de286b0f5cee14c9269041e6c4/soupsieve-2.8.3.tar.gz", hash = "sha256:3267f1eeea4251fb42728b6dfb746edc9acaffc4a45b27e19450b676586e8349", size = 118627, upload-time = "2026-01-20T04:27:02.457Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/46/2c/1462b1d0a634697ae9e55b3cecdcb64788e8b7d63f54d923fcd0bb140aed/soupsieve-2.8.3-py3-none-any.whl", hash = "sha256:ed64f2ba4eebeab06cc4962affce381647455978ffc1e36bb79a545b91f45a95", size = 37016, upload-time = "2026-01-20T04:27:01.012Z" },
+]
+
+[[package]]
+name = "syrupy"
+version = "5.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2e/b0/24bca682d6a6337854be37f242d116cceeda9942571d5804c44bc1bdd427/syrupy-5.1.0.tar.gz", hash = "sha256:df543c7aa50d3cf1246e83d58fe490afe5f7dab7b41e74ecc0d8d23ae19bd4b8", size = 50495, upload-time = "2026-01-25T14:53:06.2Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/70/cf880c3b95a6034ef673e74b369941b42315c01f1554a5637a4f8b911009/syrupy-5.1.0-py3-none-any.whl", hash = "sha256:95162d2b05e61ed3e13f117b88dfab7c58bd6f90e66ebbf918e8a77114ad51c5", size = 51658, upload-time = "2026-01-25T14:53:05.105Z" },
 ]
 
 [[package]]

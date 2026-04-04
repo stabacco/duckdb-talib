@@ -10,16 +10,16 @@ talib = pytest.importorskip("talib")
 pytest.importorskip("yfinance")
 
 
-@pytest.mark.parametrize("timeperiod", [7, 14, 21])
-def test_rsi_synthetic_matches_python_talib(
+@pytest.mark.parametrize("timeperiod", [10, 21, 50, 200])
+def test_ema_synthetic_matches_python_talib(
     duckdb_talib, ohlc_df, timeperiod: int, snapshot
 ) -> None:
     close = ohlc_df["close"].to_numpy()
-    if len(close) < timeperiod + 5:
+    if len(close) < timeperiod + 2:
         pytest.skip("fixture too short for this period")
-    py = talib.RSI(close, timeperiod=timeperiod)
+    py = talib.EMA(close, timeperiod=timeperiod)
     (db_list,) = duckdb_talib.execute(
-        "SELECT ta_rsi(?, ?::BIGINT)",
+        "SELECT ta_ema(?, ?::BIGINT)",
         [close.tolist(), timeperiod],
     ).fetchone()
     db_arr = duckdb_list_to_float_array(list(db_list))
@@ -30,15 +30,15 @@ def test_rsi_synthetic_matches_python_talib(
 @pytest.mark.parametrize(
     ("symbol", "timeperiod"),
     [
-        ("SPY", 7),
-        ("SPY", 14),
+        ("SPY", 10),
         ("SPY", 21),
-        ("QQQ", 14),
-        ("QQQ", 21),
-        ("AAPL", 14),
+        ("SPY", 50),
+        ("QQQ", 10),
+        ("QQQ", 50),
+        ("AAPL", 21),
     ],
 )
-def test_rsi_real_ticker_matches_python_talib(
+def test_ema_real_ticker_matches_python_talib(
     duckdb_talib,
     symbol: str,
     timeperiod: int,
@@ -47,11 +47,11 @@ def test_rsi_real_ticker_matches_python_talib(
     close = load_close_prices(
         symbol,
         history_period="2y",
-        min_bars=timeperiod + 10,
+        min_bars=timeperiod + 5,
     )
-    py = talib.RSI(close, timeperiod=timeperiod)
+    py = talib.EMA(close, timeperiod=timeperiod)
     (db_list,) = duckdb_talib.execute(
-        "SELECT ta_rsi(?, ?::BIGINT)",
+        "SELECT ta_ema(?, ?::BIGINT)",
         [close.tolist(), timeperiod],
     ).fetchone()
     db_arr = duckdb_list_to_float_array(list(db_list))

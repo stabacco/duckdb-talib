@@ -1,0 +1,104 @@
+# serializer version: 1
+# name: test_bbands_real_ticker_default_dev_matches_python_talib[AAPL-20]
+  dict({
+    'outRealLowerBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealMiddleBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealUpperBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_bbands_real_ticker_default_dev_matches_python_talib[QQQ-20]
+  dict({
+    'outRealLowerBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealMiddleBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealUpperBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_bbands_real_ticker_default_dev_matches_python_talib[SPY-10]
+  dict({
+    'outRealLowerBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealMiddleBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealUpperBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_bbands_real_ticker_default_dev_matches_python_talib[SPY-20]
+  dict({
+    'outRealLowerBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealMiddleBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outRealUpperBand': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_bbands_synthetic_matches_python_talib[10-2.0-2.0-0]
+  dict({
+    'outRealLowerBand': dict({
+      'py_minus_db': None,
+    }),
+    'outRealMiddleBand': dict({
+      'py_minus_db': None,
+    }),
+    'outRealUpperBand': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_bbands_synthetic_matches_python_talib[20-2.5-2.5-0]
+  dict({
+    'outRealLowerBand': dict({
+      'py_minus_db': None,
+    }),
+    'outRealMiddleBand': dict({
+      'py_minus_db': None,
+    }),
+    'outRealUpperBand': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_bbands_synthetic_matches_python_talib[5-2.0-2.0-0]
+  dict({
+    'outRealLowerBand': dict({
+      'py_minus_db': None,
+    }),
+    'outRealMiddleBand': dict({
+      'py_minus_db': None,
+    }),
+    'outRealUpperBand': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---

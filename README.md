@@ -83,7 +83,13 @@ export TALIB_DUCKDB_EXTENSION="$(pwd)/build/release/extension/talib/talib.duckdb
 uv run pytest tests/parity -q
 ```
 
-The pytest suite compares indicators against Python `talib` using a small pandas `DataFrame` (RSI, MACD, SMA). Tests are skipped if `TALIB_DUCKDB_EXTENSION` is unset or the file is missing.
+The pytest suite compares indicators against Python `talib`: parametrized **synthetic** cases (no network) plus **real tickers** via `yfinance` (marked `network`). Use `uv run pytest tests/parity -m "not network"` to skip downloads (for example in CI). Tests are skipped if `TALIB_DUCKDB_EXTENSION` is unset or the file is missing.
+
+**Snapshots (syrupy):** Each test records the Python−DuckDB gap. For synthetic data, `py_minus_db` is **`null` when every comparable bar matches** (no divergence); if any bar differs after rounding, the snapshot stores the full per-bar list (with `null` entries only where a bar is not comparable due to NaN alignment). Real tickers use **`max_abs_diff` / `sum_sq_diff`** so snapshots stay stable as history grows. Files live under [`tests/parity/__snapshots__/`](tests/parity/__snapshots__/). After an intentional extension change, refresh them with:
+
+```bash
+uv run pytest tests/parity --snapshot-update
+```
 
 A small standalone RSI check is still available:
 
@@ -102,3 +108,4 @@ uv run python scripts/verify_parity.py
 | `scripts/gen_talib_catalog.py` | Header-driven catalog generator |
 | `test/sql/talib.test` | SQLLogicTest smoke tests |
 | `tests/parity/` | Pytest parity vs Python `talib` (per-indicator modules) |
+| `tests/parity/__snapshots__/` | Syrupy regression snapshots (Python − DuckDB deltas) |

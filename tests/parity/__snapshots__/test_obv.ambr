@@ -1,0 +1,24 @@
+# serializer version: 1
+# name: test_obv_real_ticker_matches_python_talib[AAPL]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_obv_real_ticker_matches_python_talib[QQQ]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_obv_real_ticker_matches_python_talib[SPY]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_obv_synthetic_matches_python_talib
+  dict({
+    'py_minus_db': None,
+  })
+# ---
