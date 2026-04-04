@@ -1,0 +1,103 @@
+# serializer version: 1
+# name: test_stochrsi_real_ticker_default_params_matches_python_talib[AAPL]
+  dict({
+    'outFastD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outFastK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stochrsi_real_ticker_default_params_matches_python_talib[QQQ]
+  dict({
+    'outFastD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outFastK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stochrsi_real_ticker_default_params_matches_python_talib[SPY]
+  dict({
+    'outFastD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outFastK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stochrsi_real_ticker_parametrized_matches_python_talib[10-5-3-0]
+  dict({
+    'outFastD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outFastK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stochrsi_real_ticker_parametrized_matches_python_talib[14-5-3-0]
+  dict({
+    'outFastD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outFastK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stochrsi_real_ticker_parametrized_matches_python_talib[21-5-5-0]
+  dict({
+    'outFastD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outFastK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stochrsi_synthetic_matches_python_talib[10-5-3-0]
+  dict({
+    'outFastD': dict({
+      'py_minus_db': None,
+    }),
+    'outFastK': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_stochrsi_synthetic_matches_python_talib[14-3-5-1]
+  dict({
+    'outFastD': dict({
+      'py_minus_db': None,
+    }),
+    'outFastK': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_stochrsi_synthetic_matches_python_talib[14-5-3-0]
+  dict({
+    'outFastD': dict({
+      'py_minus_db': None,
+    }),
+    'outFastK': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---

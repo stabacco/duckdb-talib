@@ -1,0 +1,40 @@
+# serializer version: 1
+# name: test_roc_real_ticker_matches_python_talib[AAPL-14]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_roc_real_ticker_matches_python_talib[QQQ-10]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_roc_real_ticker_matches_python_talib[SPY-10]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_roc_real_ticker_matches_python_talib[SPY-5]
+  dict({
+    'max_abs_diff': 0.0,
+    'sum_sq_diff': 0.0,
+  })
+# ---
+# name: test_roc_synthetic_matches_python_talib[10]
+  dict({
+    'py_minus_db': None,
+  })
+# ---
+# name: test_roc_synthetic_matches_python_talib[14]
+  dict({
+    'py_minus_db': None,
+  })
+# ---
+# name: test_roc_synthetic_matches_python_talib[5]
+  dict({
+    'py_minus_db': None,
+  })
+# ---

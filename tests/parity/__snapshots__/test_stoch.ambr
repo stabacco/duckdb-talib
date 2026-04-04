@@ -1,0 +1,67 @@
+# serializer version: 1
+# name: test_stoch_real_ticker_matches_python_talib[AAPL-14-3-3]
+  dict({
+    'outSlowD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outSlowK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stoch_real_ticker_matches_python_talib[QQQ-5-3-3]
+  dict({
+    'outSlowD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outSlowK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stoch_real_ticker_matches_python_talib[SPY-5-3-3]
+  dict({
+    'outSlowD': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+    'outSlowK': dict({
+      'max_abs_diff': 0.0,
+      'sum_sq_diff': 0.0,
+    }),
+  })
+# ---
+# name: test_stoch_synthetic_matches_python_talib[14-3-0-3-0]
+  dict({
+    'outSlowD': dict({
+      'py_minus_db': None,
+    }),
+    'outSlowK': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_stoch_synthetic_matches_python_talib[5-3-0-3-0]
+  dict({
+    'outSlowD': dict({
+      'py_minus_db': None,
+    }),
+    'outSlowK': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
+# name: test_stoch_synthetic_matches_python_talib[5-5-1-5-0]
+  dict({
+    'outSlowD': dict({
+      'py_minus_db': None,
+    }),
+    'outSlowK': dict({
+      'py_minus_db': None,
+    }),
+  })
+# ---
