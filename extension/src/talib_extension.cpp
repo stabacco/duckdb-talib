@@ -25,6 +25,12 @@ namespace duckdb {
 
 namespace {
 
+#include "generated/talib_catalog.inc"
+
+static_assert(TALIB_CATALOG_COUNT > 0, "talib catalog must be non-empty");
+static_assert(sizeof(TALIB_CATALOG_NAMES) / sizeof(TALIB_CATALOG_NAMES[0]) == TALIB_CATALOG_COUNT,
+              "talib_catalog.inc: array size must match TALIB_CATALOG_COUNT");
+
 constexpr idx_t kMaxBars = 10000000;
 
 static const struct {
@@ -124,6 +130,79 @@ static LogicalType BuildReturnType(const TA_FuncInfo *fi) {
 	return LogicalType::STRUCT(std::move(children));
 }
 
+static const TA_InputParameterInfo *RequireInputParameterInfo(const TA_FuncHandle *handle, unsigned idx) {
+	const TA_InputParameterInfo *pi = nullptr;
+	if (TA_GetInputParameterInfo(handle, idx, &pi) != TA_SUCCESS || !pi) {
+		throw InternalException("talib: TA_GetInputParameterInfo failed");
+	}
+	return pi;
+}
+
+static const TA_OptInputParameterInfo *RequireOptInputParameterInfo(const TA_FuncHandle *handle, unsigned idx) {
+	const TA_OptInputParameterInfo *oi = nullptr;
+	if (TA_GetOptInputParameterInfo(handle, idx, &oi) != TA_SUCCESS || !oi) {
+		throw InternalException("talib: TA_GetOptInputParameterInfo failed");
+	}
+	return oi;
+}
+
+static const TA_OutputParameterInfo *RequireOutputParameterInfo(const TA_FuncHandle *handle, unsigned idx) {
+	const TA_OutputParameterInfo *po = nullptr;
+	if (TA_GetOutputParameterInfo(handle, idx, &po) != TA_SUCCESS || !po) {
+		throw InternalException("talib: TA_GetOutputParameterInfo failed");
+	}
+	return po;
+}
+
+//! Validates list shape and element validity without copying (first pass for sizing).
+static bool PeekDoubleList(Vector &vec, idx_t chunk_size, idx_t row, idx_t &out_len, string &err) {
+	UnifiedVectorFormat lv;
+	vec.ToUnifiedFormat(chunk_size, lv);
+	auto li = lv.sel->get_index(row);
+	if (!lv.validity.RowIsValid(li)) {
+		err = "NULL list input";
+		return false;
+	}
+	auto lists = UnifiedVectorFormat::GetData<list_entry_t>(lv);
+	const auto &entry = lists[li];
+	auto &child = ListVector::GetEntry(vec);
+	UnifiedVectorFormat cv;
+	child.ToUnifiedFormat(ListVector::GetListSize(vec), cv);
+	for (idx_t j = 0; j < entry.length; j++) {
+		auto ci = cv.sel->get_index(entry.offset + j);
+		if (!cv.validity.RowIsValid(ci)) {
+			err = "NULL element inside DOUBLE[] input";
+			return false;
+		}
+	}
+	out_len = entry.length;
+	return true;
+}
+
+static bool PeekIntList(Vector &vec, idx_t chunk_size, idx_t row, idx_t &out_len, string &err) {
+	UnifiedVectorFormat lv;
+	vec.ToUnifiedFormat(chunk_size, lv);
+	auto li = lv.sel->get_index(row);
+	if (!lv.validity.RowIsValid(li)) {
+		err = "NULL list input";
+		return false;
+	}
+	auto lists = UnifiedVectorFormat::GetData<list_entry_t>(lv);
+	const auto &entry = lists[li];
+	auto &child = ListVector::GetEntry(vec);
+	UnifiedVectorFormat cv;
+	child.ToUnifiedFormat(ListVector::GetListSize(vec), cv);
+	for (idx_t j = 0; j < entry.length; j++) {
+		auto ci = cv.sel->get_index(entry.offset + j);
+		if (!cv.validity.RowIsValid(ci)) {
+			err = "NULL element inside INTEGER[] input";
+			return false;
+		}
+	}
+	out_len = entry.length;
+	return true;
+}
+
 static bool ReadDoubleList(Vector &vec, idx_t chunk_size, idx_t row, vector<double> &out, string &err) {
 	UnifiedVectorFormat lv;
 	vec.ToUnifiedFormat(chunk_size, lv);
@@ -198,19 +277,14 @@ static bool TryReadDoubleArg(Vector &vec, idx_t chunk_size, idx_t row, double &o
 	return true;
 }
 
-static void WriteDoubleListRow(Vector &result, idx_t row, idx_t n, const double *src, TA_Integer outBegIdx,
-                               TA_Integer outNbElement) {
+static void WriteDoubleListRow(Vector &result, idx_t row, idx_t base_off, idx_t n, const double *src,
+                               TA_Integer outBegIdx, TA_Integer outNbElement) {
 	D_ASSERT(result.GetType().id() == LogicalTypeId::LIST);
 	auto &child = ListVector::GetEntry(result);
 	auto child_data = FlatVector::GetData<double>(child);
 	auto &child_validity = FlatVector::Validity(child);
 	auto lists = FlatVector::GetData<list_entry_t>(result);
 
-	idx_t base_off = 0;
-	if (row > 0) {
-		const auto &prev = lists[row - 1];
-		base_off = prev.offset + prev.length;
-	}
 	lists[row].offset = base_off;
 	lists[row].length = n;
 	for (idx_t i = 0; i < n; i++) {
@@ -229,19 +303,14 @@ static void WriteDoubleListRow(Vector &result, idx_t row, idx_t n, const double 
 	}
 }
 
-static void WriteIntListRow(Vector &result, idx_t row, idx_t n, const TA_Integer *src, TA_Integer outBegIdx,
-                            TA_Integer outNbElement) {
+static void WriteIntListRow(Vector &result, idx_t row, idx_t base_off, idx_t n, const TA_Integer *src,
+                            TA_Integer outBegIdx, TA_Integer outNbElement) {
 	D_ASSERT(result.GetType().id() == LogicalTypeId::LIST);
 	auto &child = ListVector::GetEntry(result);
 	auto child_data = FlatVector::GetData<int32_t>(child);
 	auto &child_validity = FlatVector::Validity(child);
 	auto lists = FlatVector::GetData<list_entry_t>(result);
 
-	idx_t base_off = 0;
-	if (row > 0) {
-		const auto &prev = lists[row - 1];
-		base_off = prev.offset + prev.length;
-	}
 	lists[row].offset = base_off;
 	lists[row].length = n;
 	for (idx_t i = 0; i < n; i++) {
@@ -292,28 +361,27 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 		idx_t arg_col = 0;
 		idx_t n = 0;
 		for (unsigned in_idx = 0; in_idx < fi->nbInput; in_idx++) {
-			const TA_InputParameterInfo *pi = nullptr;
-			TA_GetInputParameterInfo(handle, in_idx, &pi);
+			const TA_InputParameterInfo *pi = RequireInputParameterInfo(handle, in_idx);
 			switch (pi->type) {
 			case TA_Input_Real: {
-				vector<double> tmp;
-				if (!ReadDoubleList(args.data[arg_col++], count, r, tmp, err)) {
+				idx_t len = 0;
+				if (!PeekDoubleList(args.data[arg_col++], count, r, len, err)) {
 					row_ok = false;
 				} else if (n == 0) {
-					n = tmp.size();
-				} else if (tmp.size() != n) {
+					n = len;
+				} else if (len != n) {
 					err = "TA-Lib inputs must have equal length";
 					row_ok = false;
 				}
 				break;
 			}
 			case TA_Input_Integer: {
-				vector<int32_t> tmp;
-				if (!ReadIntList(args.data[arg_col++], count, r, tmp, err)) {
+				idx_t len = 0;
+				if (!PeekIntList(args.data[arg_col++], count, r, len, err)) {
 					row_ok = false;
 				} else if (n == 0) {
-					n = tmp.size();
-				} else if (tmp.size() != n) {
+					n = len;
+				} else if (len != n) {
 					err = "TA-Lib inputs must have equal length";
 					row_ok = false;
 				}
@@ -322,12 +390,12 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 			case TA_Input_Price: {
 				for (auto pc : kPriceComponents) {
 					if (pi->flags & pc.flag) {
-						vector<double> tmp;
-						if (!ReadDoubleList(args.data[arg_col++], count, r, tmp, err)) {
+						idx_t len = 0;
+						if (!PeekDoubleList(args.data[arg_col++], count, r, len, err)) {
 							row_ok = false;
 						} else if (n == 0) {
-							n = tmp.size();
-						} else if (tmp.size() != n) {
+							n = len;
+						} else if (len != n) {
 							err = "TA-Lib inputs must have equal length";
 							row_ok = false;
 						}
@@ -366,6 +434,7 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 	auto &res_validity = FlatVector::Validity(result);
 	res_validity.SetAllValid(count);
 
+	idx_t next_child_off = 0;
 	for (idx_t r = 0; r < count; r++) {
 		TA_ParamHolder *holder = nullptr;
 		if (TA_ParamHolderAlloc(handle, &holder) != TA_SUCCESS) {
@@ -387,8 +456,7 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 		};
 
 		for (unsigned in_idx = 0; in_idx < fi->nbInput; in_idx++) {
-			const TA_InputParameterInfo *pi = nullptr;
-			TA_GetInputParameterInfo(handle, in_idx, &pi);
+			const TA_InputParameterInfo *pi = RequireInputParameterInfo(handle, in_idx);
 			switch (pi->type) {
 			case TA_Input_Real: {
 				if (!ReadDoubleList(args.data[arg_col], count, r, real_storage[in_idx], err)) {
@@ -477,8 +545,7 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 		}
 
 		for (unsigned oj = 0; row_ok && oj < fi->nbOptInput; oj++) {
-			const TA_OptInputParameterInfo *oi = nullptr;
-			TA_GetOptInputParameterInfo(handle, oj, &oi);
+			const TA_OptInputParameterInfo *oi = RequireOptInputParameterInfo(handle, oj);
 			Vector &avec = args.data[arg_col++];
 			switch (oi->type) {
 			case TA_OptInput_IntegerRange:
@@ -529,8 +596,7 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 		vector<vector<double>> out_real(fi->nbOutput);
 		vector<vector<TA_Integer>> out_int(fi->nbOutput);
 		for (unsigned o = 0; o < fi->nbOutput; o++) {
-			const TA_OutputParameterInfo *po = nullptr;
-			TA_GetOutputParameterInfo(handle, o, &po);
+			const TA_OutputParameterInfo *po = RequireOutputParameterInfo(handle, o);
 			if (po->type == TA_Output_Real) {
 				out_real[o].resize(n);
 				if (TA_SetOutputParamRealPtr(holder, o, out_real[o].data()) != TA_SUCCESS) {
@@ -547,7 +613,16 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 					row_ok = false;
 					break;
 				}
+			} else {
+				TA_ParamHolderFree(holder);
+				res_validity.SetInvalid(r);
+				row_ok = false;
+				break;
 			}
+		}
+
+		if (!row_ok) {
+			continue;
 		}
 
 		TA_Integer outBeg = 0;
@@ -560,23 +635,24 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 			continue;
 		}
 
+		const idx_t row_base_off = next_child_off;
+		next_child_off += n;
+
 		if (fi->nbOutput == 1) {
-			const TA_OutputParameterInfo *po0 = nullptr;
-			TA_GetOutputParameterInfo(handle, 0, &po0);
+			const TA_OutputParameterInfo *po0 = RequireOutputParameterInfo(handle, 0);
 			if (po0->type == TA_Output_Real) {
-				WriteDoubleListRow(result, r, n, out_real[0].data(), outBeg, outNb);
+				WriteDoubleListRow(result, r, row_base_off, n, out_real[0].data(), outBeg, outNb);
 			} else {
-				WriteIntListRow(result, r, n, out_int[0].data(), outBeg, outNb);
+				WriteIntListRow(result, r, row_base_off, n, out_int[0].data(), outBeg, outNb);
 			}
 		} else {
 			auto &centries = StructVector::GetEntries(result);
 			for (unsigned o = 0; o < fi->nbOutput; o++) {
-				const TA_OutputParameterInfo *po = nullptr;
-				TA_GetOutputParameterInfo(handle, o, &po);
+				const TA_OutputParameterInfo *po = RequireOutputParameterInfo(handle, o);
 				if (po->type == TA_Output_Real) {
-					WriteDoubleListRow(*centries[o], r, n, out_real[o].data(), outBeg, outNb);
+					WriteDoubleListRow(*centries[o], r, row_base_off, n, out_real[o].data(), outBeg, outNb);
 				} else {
-					WriteIntListRow(*centries[o], r, n, out_int[o].data(), outBeg, outNb);
+					WriteIntListRow(*centries[o], r, row_base_off, n, out_int[o].data(), outBeg, outNb);
 				}
 			}
 		}
@@ -630,20 +706,21 @@ static void TalibScalarExec(DataChunk &args, ExpressionState &state, Vector &res
 	result.Verify(count);
 }
 
-static void RegisterTalibFromFuncInfo(ExtensionLoader &loader, const TA_FuncInfo *fi) {
+static bool RegisterTalibFromFuncInfo(ExtensionLoader &loader, const TA_FuncInfo *fi) {
 	vector<LogicalType> arg_types;
 	if (!BuildArgTypes(fi, arg_types)) {
-		return;
+		return false;
 	}
 	LogicalType ret = BuildReturnType(fi);
 	if (ret.id() == LogicalTypeId::SQLNULL) {
-		return;
+		return false;
 	}
 	ScalarFunction fn(SqlNameForTaFunction(fi->name), std::move(arg_types), std::move(ret), TalibScalarExec,
 	                  TalibScalarBindData);
 	fn.function_info = make_shared_ptr<TalibScalarFunctionInfo>(fi->handle);
 	fn.null_handling = FunctionNullHandling::SPECIAL_HANDLING;
 	loader.RegisterFunction(fn);
+	return true;
 }
 
 struct ForeachCtx {
@@ -656,17 +733,18 @@ struct ForeachCtx {
 
 static void ForeachRegister(const TA_FuncInfo *fi, void *opaque) {
 	auto *ctx = static_cast<ForeachCtx *>(opaque);
-	try {
-		RegisterTalibFromFuncInfo(*ctx->loader, fi);
+	if (RegisterTalibFromFuncInfo(*ctx->loader, fi)) {
 		(*ctx->registered)++;
-	} catch (const std::exception &) {
-		/* Skip functions with unsupported signatures or registration clashes. */
 	}
 }
 
 } // namespace
 
 static void LoadInternal(ExtensionLoader &loader) {
+	// TA-Lib uses process-wide globals (compatibility, unstable period). Concurrent
+	// TA_CallFunc from multiple threads only reads them under default settings.
+	// We do not call TA_Shutdown on extension unload; the library stays initialized
+	// for the process lifetime (matches typical loadable-extension usage).
 	static std::once_flag ta_init;
 	std::call_once(ta_init, [] {
 		if (TA_Initialize() != TA_SUCCESS) {

@@ -6,6 +6,7 @@ set(LOADABLE_EXTENSION_NAME ${TARGET_NAME}_loadable_extension)
 
 project(${TARGET_NAME})
 include_directories(src/include)
+include_directories(src)
 
 set(BUILD_DEV_TOOLS
     OFF
