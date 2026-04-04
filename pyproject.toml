@@ -1,0 +1,20 @@
+[project]
+name = "duckdb-talib"
+version = "0.1.0"
+description = "DuckDB extension wrapping TA-Lib technical analysis functions"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "duckdb>=1.4.2",
+    "duckdb-flyway>=0.1.1",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.11.0",
+    "mypy>=1.19.0",
+    "numpy>=2.0.0",
+    "pre-commit>=4.5.0",
+    "ruff>=0.14.7",
+    "TA-Lib>=0.6.0",
+]

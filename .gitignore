@@ -1,0 +1,8 @@
+build/
+.cache/
+_ext_tpl/
+*.duckdb_extension
+.DS_Store
+__pycache__/
+*.pyc
+.python-version.bak
