@@ -5,7 +5,7 @@ description = "DuckDB extension wrapping TA-Lib technical analysis functions"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "duckdb>=1.4.2",
+    "duckdb>=1.5.1",
     "duckdb-flyway>=0.1.1",
 ]
 
@@ -14,7 +14,16 @@ dev = [
     "black>=25.11.0",
     "mypy>=1.19.0",
     "numpy>=2.0.0",
+    "pandas>=2.2.0",
     "pre-commit>=4.5.0",
+    "pytest>=8.0.0",
     "ruff>=0.14.7",
     "TA-Lib>=0.6.0",
+    "yfinance>=0.2.40",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = [
+    "network: tests that download market data (need connectivity)",
 ]

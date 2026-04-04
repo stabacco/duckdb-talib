@@ -25,7 +25,7 @@ namespace duckdb {
 
 namespace {
 
-constexpr idx_t kMaxBars = 10'000'000;
+constexpr idx_t kMaxBars = 10000000;
 
 static const struct {
 	TA_InputFlags flag;
@@ -124,7 +124,7 @@ static LogicalType BuildReturnType(const TA_FuncInfo *fi) {
 	return LogicalType::STRUCT(std::move(children));
 }
 
-static bool ReadDoubleList(const Vector &vec, idx_t chunk_size, idx_t row, vector<double> &out, string &err) {
+static bool ReadDoubleList(Vector &vec, idx_t chunk_size, idx_t row, vector<double> &out, string &err) {
 	UnifiedVectorFormat lv;
 	vec.ToUnifiedFormat(chunk_size, lv);
 	auto li = lv.sel->get_index(row);
@@ -150,7 +150,7 @@ static bool ReadDoubleList(const Vector &vec, idx_t chunk_size, idx_t row, vecto
 	return true;
 }
 
-static bool ReadIntList(const Vector &vec, idx_t chunk_size, idx_t row, vector<int32_t> &out, string &err) {
+static bool ReadIntList(Vector &vec, idx_t chunk_size, idx_t row, vector<int32_t> &out, string &err) {
 	UnifiedVectorFormat lv;
 	vec.ToUnifiedFormat(chunk_size, lv);
 	auto li = lv.sel->get_index(row);
@@ -176,7 +176,7 @@ static bool ReadIntList(const Vector &vec, idx_t chunk_size, idx_t row, vector<i
 	return true;
 }
 
-static bool TryReadBigIntArg(const Vector &vec, idx_t chunk_size, idx_t row, int64_t &out) {
+static bool TryReadBigIntArg(Vector &vec, idx_t chunk_size, idx_t row, int64_t &out) {
 	UnifiedVectorFormat v;
 	vec.ToUnifiedFormat(chunk_size, v);
 	auto vi = v.sel->get_index(row);
@@ -187,7 +187,7 @@ static bool TryReadBigIntArg(const Vector &vec, idx_t chunk_size, idx_t row, int
 	return true;
 }
 
-static bool TryReadDoubleArg(const Vector &vec, idx_t chunk_size, idx_t row, double &out) {
+static bool TryReadDoubleArg(Vector &vec, idx_t chunk_size, idx_t row, double &out) {
 	UnifiedVectorFormat v;
 	vec.ToUnifiedFormat(chunk_size, v);
 	auto vi = v.sel->get_index(row);
@@ -645,8 +645,11 @@ static void RegisterTalibFromFuncInfo(ExtensionLoader &loader, const TA_FuncInfo
 }
 
 struct ForeachCtx {
-	ExtensionLoader *loader = nullptr;
-	idx_t *registered = nullptr;
+	explicit ForeachCtx(ExtensionLoader &loader_p, idx_t *registered_p)
+	    : loader(&loader_p), registered(registered_p) {
+	}
+	ExtensionLoader *loader;
+	idx_t *registered;
 };
 
 static void ForeachRegister(const TA_FuncInfo *fi, void *opaque) {
@@ -669,7 +672,7 @@ static void LoadInternal(ExtensionLoader &loader) {
 		}
 	});
 	idx_t registered = 0;
-	ForeachCtx ctx {&loader, &registered};
+	ForeachCtx ctx(loader, &registered);
 	TA_ForEachFunc(ForeachRegister, &ctx);
 	if (registered == 0) {
 		throw IOException("talib extension: no TA-Lib functions were registered");

@@ -2,6 +2,8 @@
 """
 Compare ta_rsi from this extension against the Python `talib` package.
 
+RSI (and MACD, SMA) are also covered by pytest under `tests/parity/`.
+
 Prerequisites:
   - Built loadable extension (see README).
   - `uv sync --group dev` (installs talib + numpy).
@@ -38,14 +40,14 @@ def main() -> int:
     period = 14
     py = talib.RSI(close, timeperiod=period)
 
-    con = duckdb.connect()
+    con = duckdb.connect(config={"allow_unsigned_extensions": "true"})
     con.execute(f"LOAD '{ext}'")
     (db,) = con.execute(
         "SELECT ta_rsi(?, ?::BIGINT)",
         [close.tolist(), period],
     ).fetchone()
-    # DuckDB returns a list aligned to input length; compare last non-NaN slice
-    db_arr = np.array(db, dtype=np.float64)
+    # DuckDB returns a list aligned to input length; NULL warm-up → NaN for compare
+    db_arr = np.array([np.nan if v is None else float(v) for v in db], dtype=np.float64)
     mask = ~np.isnan(py) & ~np.isnan(db_arr)
     if not np.allclose(py[mask], db_arr[mask], rtol=0, atol=1e-9):
         print(

@@ -79,8 +79,16 @@ With the extension built and dev dependencies installed (`TA-Lib` on PyPI still 
 
 ```bash
 uv sync --group dev
-TALIB_DUCKDB_EXTENSION="$(pwd)/build/release/extension/talib/talib.duckdb_extension" \
-  uv run python scripts/verify_parity.py
+export TALIB_DUCKDB_EXTENSION="$(pwd)/build/release/extension/talib/talib.duckdb_extension"
+uv run pytest tests/parity -q
+```
+
+The pytest suite compares indicators against Python `talib` using a small pandas `DataFrame` (RSI, MACD, SMA). Tests are skipped if `TALIB_DUCKDB_EXTENSION` is unset or the file is missing.
+
+A small standalone RSI check is still available:
+
+```bash
+uv run python scripts/verify_parity.py
 ```
 
 ## Repository layout
@@ -93,3 +101,4 @@ TALIB_DUCKDB_EXTENSION="$(pwd)/build/release/extension/talib/talib.duckdb_extens
 | `extension-ci-tools/` | Shared Make + CI helpers (submodule) |
 | `scripts/gen_talib_catalog.py` | Header-driven catalog generator |
 | `test/sql/talib.test` | SQLLogicTest smoke tests |
+| `tests/parity/` | Pytest parity vs Python `talib` (per-indicator modules) |
