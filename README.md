@@ -57,13 +57,21 @@ The loadable artifact is:
 
 ### 4. Allow loading local extensions
 
-Locally built extensions are not signed. In SQL (or your client config), enable:
+Locally built extensions are not signed. DuckDB does **not** allow turning this on with `SET` after the database is already open—you get: *Cannot change allow_unsigned_extensions setting while database is running*. Enable it **when the process connects**, then run `LOAD`:
 
-```sql
-SET allow_unsigned_extensions = true;
-```
+- **CLI:** start the shell with `-unsigned` (sets the option before the DB starts), then `LOAD '…'`:
 
-The Python parity tests use the same setting via `duckdb.connect(config={"allow_unsigned_extensions": "true"})`.
+  ```bash
+  duckdb -unsigned
+  ```
+
+- **Python** (`duckdb` ≥ 1.5.1): pass config at connect time (this is what the parity tests use):
+
+  ```python
+  duckdb.connect(":memory:", config={"allow_unsigned_extensions": "true"})
+  ```
+
+- **Other clients / IDE extensions:** use whatever hook sets DuckDB options **before** the database is created (same key: `allow_unsigned_extensions`).
 
 ### 5. Load in DuckDB
 

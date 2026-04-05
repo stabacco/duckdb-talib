@@ -1,0 +1,33 @@
+# Add this file to a fork of https://github.com/duckdb/community-extensions at:
+#   extensions/talib/description.yml
+# Update repo.ref to the exact commit you want published whenever you tag a release.
+
+extension:
+  name: talib
+  description: TA-Lib technical analysis indicators as DuckDB SQL scalars (e.g. ta_rsi, ta_macd, ta_atr).
+  version: 0.1.0
+  language: C++
+  build: cmake
+  license: MIT
+  maintainers:
+    - stabacco
+
+repo:
+  github: stabacco/duckdb-talib
+  ref: f0342b0748ab5496534b02174b61803a4b48e3b5
+
+docs:
+  hello_world: |
+    INSTALL talib FROM community;
+    LOAD talib;
+
+    SELECT ta_rsi([100.0, 101.0, 102.0, 103.0, 104.0, 105.0, 106.0]::DOUBLE[], 3::BIGINT) AS rsi;
+
+  extended_description: |
+    Exposes [TA-Lib](https://github.com/TA-Lib/ta-lib) functions under SQL names `ta_*` (mirroring `TA_*` in the C API). Indicators are implemented via TA-Lib’s abstract API (`TA_ForEachFunc` / `TA_CallFunc`), so new functions in the bundled TA-Lib version are registered automatically after a catalog regen and rebuild.
+
+    **Inputs:** Pass each price or volume series as `LIST(DOUBLE)` (and optional integer/real parameters in TA-Lib metadata order). Typical pattern is `list(column ORDER BY time_col)` with `GROUP BY` asset key. Warm-up bars remain in the list; outputs are NULL until TA-Lib’s `outBegIdx` (standard TA-Lib behavior).
+
+    **Multi-output functions** return a `STRUCT` of lists (field names match TA-Lib, e.g. MACD’s `"outMACD"`, `"outMACDSignal"`, `"outMACDHist"`).
+
+    The linked TA-Lib C library is BSD-3-Clause (see the `ta-lib` submodule). Project home: https://github.com/stabacco/duckdb-talib
