@@ -3,6 +3,7 @@ name = "duckdb-talib"
 version = "0.1.0"
 description = "DuckDB extension wrapping TA-Lib technical analysis functions"
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.13"
 dependencies = [
     "duckdb>=1.5.1",
